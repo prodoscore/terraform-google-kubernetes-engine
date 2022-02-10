@@ -107,6 +107,24 @@ variable "maintenance_start_time" {
   default     = "05:00"
 }
 
+variable "maintenance_exclusions" {
+  type        = list(object({ name = string, start_time = string, end_time = string }))
+  description = "List of maintenance exclusions. A cluster can have up to three"
+  default     = []
+}
+
+variable "maintenance_end_time" {
+  type        = string
+  description = "Time window specified for recurring maintenance operations in RFC3339 format"
+  default     = ""
+}
+
+variable "maintenance_recurrence" {
+  type        = string
+  description = "Frequency of the recurring maintenance window in RFC5545 format."
+  default     = ""
+}
+
 variable "ip_range_pods" {
   type        = string
   description = "The _name_ of the secondary subnet ip range to use for pods"
@@ -196,16 +214,41 @@ variable "upstream_nameservers" {
   default     = []
 }
 
+variable "cluster_telemetry_type" {
+  type        = string
+  description = "Available options include ENABLED, DISABLED, and SYSTEM_ONLY"
+  default     = null
+}
+
+
 variable "logging_service" {
   type        = string
   description = "The logging service that the cluster should write logs to. Available options include logging.googleapis.com, logging.googleapis.com/kubernetes (beta), and none"
   default     = "logging.googleapis.com/kubernetes"
 }
 
+variable "logging_enabled_components" {
+  type        = list(string)
+  description = "List of services to monitor: SYSTEM_COMPONENTS, WORKLOADS. Empty list is default GKE configuration."
+  default     = []
+}
+
 variable "monitoring_service" {
   type        = string
   description = "The monitoring service that the cluster should write metrics to. Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API. VM metrics will be collected by Google Compute Engine regardless of this setting Available options include monitoring.googleapis.com, monitoring.googleapis.com/kubernetes (beta) and none"
   default     = "monitoring.googleapis.com/kubernetes"
+}
+
+variable "monitoring_enabled_components" {
+  type        = list(string)
+  description = "List of services to monitor: SYSTEM_COMPONENTS, WORKLOADS (provider version >= 3.89.0). Empty list is default GKE configuration."
+  default     = []
+}
+
+variable "create_service_account" {
+  type        = bool
+  description = "Defines if service account specified to run nodes should be created."
+  default     = true
 }
 
 variable "grant_registry_access" {
@@ -220,10 +263,33 @@ variable "registry_project_ids" {
   default     = []
 }
 
+variable "service_account" {
+  type        = string
+  description = "The service account to run nodes as if not overridden in `node_pools`. The create_service_account variable default value (true) will cause a cluster-specific service account to be created."
+  default     = ""
+}
+
+variable "issue_client_certificate" {
+  type        = bool
+  description = "Issues a client certificate to authenticate to the cluster endpoint. To maximize the security of your cluster, leave this option disabled. Client certificates don't automatically rotate and aren't easily revocable. WARNING: changing this after cluster creation is destructive!"
+  default     = false
+}
+
+variable "cluster_ipv4_cidr" {
+  default     = null
+  description = "The IP address range of the kubernetes pods in this cluster. Default is an automatically assigned CIDR."
+}
+
+
 variable "cluster_resource_labels" {
   type        = map(string)
   description = "The GCE resource labels (a map of key/value pairs) to be applied to the cluster"
   default     = {}
+}
+variable "enable_private_nodes" {
+  type        = bool
+  description = "(Beta) Whether nodes have internal IP addresses only"
+  default     = false
 }
 
 variable "master_ipv4_cidr_block" {
